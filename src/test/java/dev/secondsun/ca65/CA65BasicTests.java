@@ -31,6 +31,23 @@ public class CA65BasicTests {
         assertEquals(0, errors.get());
     }
 
+    @Test
+    @DisplayName("Test Include directive")
+    public void testIncludeDirective() throws IOException {
+        var source = CharStreams.fromStream(resource("import.s"));
+        AtomicInteger errors = new AtomicInteger(0);
+
+        ca65Lexer lexer = new ca65Lexer(source);
+        lexer.addErrorListener(new BaseErrorListener() {
+            @Override
+            public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
+                errors.incrementAndGet();
+            }
+        });
+
+        fail();
+    }
+
     private InputStream resource(String filename) {
 
         var stream = CA65BasicTests.class.getClassLoader().getResourceAsStream("65.s");

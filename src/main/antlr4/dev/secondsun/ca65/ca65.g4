@@ -5,6 +5,7 @@ grammar ca65;
 number : INT;
 
 INT : [0-9]+ ;
-COMMENT :   ';' .*? '\r'? '\n' -> skip ;
+COMMENT :   ';' .*? '\r'? '\n' -> type(NL) ;
+NL: '\r'? '\n';
 WS : [ \t\r\n]+ -> skip ;
 
