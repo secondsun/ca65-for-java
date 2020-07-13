@@ -1,9 +1,8 @@
 T__0=1
 STRING=2
-INT=3
-DIRECTIVE=4
+DIRECTIVE=3
+INT=4
 ID=5
 NL=6
 WS=7
 ':'=1
-'.include'=4

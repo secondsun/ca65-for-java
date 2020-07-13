@@ -10,8 +10,13 @@ import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
+/**
+ * This class tests my first attempts at a java language tool for ca65.
+ * 
+ * This was my starting point.
+ * 
+ */
 public class CA65BasicTests {
     @Test
     @DisplayName("Read an integer from a file")
@@ -27,9 +32,7 @@ public class CA65BasicTests {
             }
         });
         var token = lexer.nextToken();
-        while (token.getType() == ca65Lexer.NL) {
-            token = lexer.nextToken();
-        }
+
         assertEquals(ca65Lexer.INT, token.getType());
         assertEquals("65", token.getText());
         assertEquals(0, errors.get());
@@ -52,24 +55,18 @@ public class CA65BasicTests {
         assertEquals(0, errors.get());
 
         var token = lexer.nextToken();
-        while (token.getType() == ca65Lexer.NL) {
-            token = lexer.nextToken();
-        }
-        
-        assertEquals(".include", token.getText());
-        assertEquals(ca65Lexer.DIRECTIVE, token.getType());
 
+        assertEquals(ca65Lexer.SINGLE_LINE_DIRECTIVE, token.getType());
+        assertEquals(".include", token.getText());
         
         token = lexer.nextToken();
-        while (token.getType() == ca65Lexer.NL) {
-            token = lexer.nextToken();
-        }
+
         assertEquals(ca65Lexer.STRING, token.getType());
         assertEquals("\"libSFX.i\"", token.getText());
 
     }
 
-    private InputStream resource(String filename) {
+    public static InputStream resource(String filename) {
 
         var stream = CA65BasicTests.class.getClassLoader().getResourceAsStream(filename);
         return stream;
