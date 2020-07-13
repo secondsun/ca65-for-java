@@ -1,4 +1,4 @@
-// Generated from /home/summerspittman/Projects/ca65-for-java/src/main/antlr4/dev/secondsun/ca65/opcodes6502.g4 by ANTLR 4.8
+// Generated from c:\Users\secon\Projects\ca65-for-java\src\main\antlr4\dev\secondsun\ca65\opcodes6502.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
@@ -16,24 +16,24 @@ public class opcodes6502Parser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		WS=1, INT=2;
+		T__0=1;
 	public static final int
-		RULE_number = 0;
+		RULE_mnemonic = 0;
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"number"
+			"mnemonic"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
+			null, "'\\b(?i:ADC|AND|ASL|BCC|BCS|BEQ|BIT|BMI|BNE|BPL|BRK|BVC|BVS|CLC|CLD|CLI|CLV|CMP|CPX|CPY|DEC|DEX|DEY|EOR|INC|INX|INY|JMP|JSR|LDA|LDX|LDY|LSR|NOP|ORA|PHA|PHP|PLA|PLP|ROL|ROR|RTI|RTS|SBC|SEC|SED|SEI|STA|STX|STY|TAX|TAY|TSX|TXA|TXS|TYA)\\b'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "WS", "INT"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -87,22 +87,21 @@ public class opcodes6502Parser extends Parser {
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
 
-	public static class NumberContext extends ParserRuleContext {
-		public TerminalNode INT() { return getToken(opcodes6502Parser.INT, 0); }
-		public NumberContext(ParserRuleContext parent, int invokingState) {
+	public static class MnemonicContext extends ParserRuleContext {
+		public MnemonicContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_number; }
+		@Override public int getRuleIndex() { return RULE_mnemonic; }
 	}
 
-	public final NumberContext number() throws RecognitionException {
-		NumberContext _localctx = new NumberContext(_ctx, getState());
-		enterRule(_localctx, 0, RULE_number);
+	public final MnemonicContext mnemonic() throws RecognitionException {
+		MnemonicContext _localctx = new MnemonicContext(_ctx, getState());
+		enterRule(_localctx, 0, RULE_mnemonic);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(2);
-			match(INT);
+			match(T__0);
 			}
 		}
 		catch (RecognitionException re) {
@@ -117,8 +116,8 @@ public class opcodes6502Parser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\4\7\4\2\t\2\3\2\3"+
-		"\2\3\2\2\2\3\2\2\2\2\5\2\4\3\2\2\2\4\5\7\4\2\2\5\3\3\2\2\2\2";
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\3\7\4\2\t\2\3\2\3"+
+		"\2\3\2\2\2\3\2\2\2\2\5\2\4\3\2\2\2\4\5\7\3\2\2\5\3\3\2\2\2\2";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

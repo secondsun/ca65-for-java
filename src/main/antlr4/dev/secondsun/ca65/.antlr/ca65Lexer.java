@@ -1,4 +1,4 @@
-// Generated from /home/summerspittman/Projects/ca65-for-java/src/main/antlr4/dev/secondsun/ca65/ca65.g4 by ANTLR 4.8
+// Generated from c:\Users\secon\Projects\ca65-for-java\src\main\antlr4\dev\secondsun\ca65\ca65.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
@@ -16,7 +16,7 @@ public class ca65Lexer extends Lexer {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		INT=1, WS=2;
+		T__0=1, STRING=2, INT=3, DIRECTIVE=4, ID=5, NL=6, WS=7;
 	public static String[] channelNames = {
 		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"
 	};
@@ -27,19 +27,20 @@ public class ca65Lexer extends Lexer {
 
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"INT", "WS"
+			"T__0", "STRING", "INT", "DIRECTIVE", "ID", "COMMENT", "NL", "WS"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
+			null, "':'", null, null, "'.include'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "INT", "WS"
+			null, null, "STRING", "INT", "DIRECTIVE", "ID", "NL", "WS"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -101,13 +102,28 @@ public class ca65Lexer extends Lexer {
 	public ATN getATN() { return _ATN; }
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\2\4\23\b\1\4\2\t\2"+
-		"\4\3\t\3\3\2\6\2\t\n\2\r\2\16\2\n\3\3\6\3\16\n\3\r\3\16\3\17\3\3\3\3\2"+
-		"\2\4\3\3\5\4\3\2\4\3\2\62;\5\2\13\f\17\17\"\"\2\24\2\3\3\2\2\2\2\5\3\2"+
-		"\2\2\3\b\3\2\2\2\5\r\3\2\2\2\7\t\t\2\2\2\b\7\3\2\2\2\t\n\3\2\2\2\n\b\3"+
-		"\2\2\2\n\13\3\2\2\2\13\4\3\2\2\2\f\16\t\3\2\2\r\f\3\2\2\2\16\17\3\2\2"+
-		"\2\17\r\3\2\2\2\17\20\3\2\2\2\20\21\3\2\2\2\21\22\b\3\2\2\22\6\3\2\2\2"+
-		"\5\2\n\17\3\b\2\2";
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\2\tN\b\1\4\2\t\2\4"+
+		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\3\2\3\2\3\3\3\3"+
+		"\3\3\3\3\7\3\32\n\3\f\3\16\3\35\13\3\3\3\3\3\3\4\6\4\"\n\4\r\4\16\4#\3"+
+		"\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\6\3\6\6\6\61\n\6\r\6\16\6\62\3\7"+
+		"\3\7\7\7\67\n\7\f\7\16\7:\13\7\3\7\5\7=\n\7\3\7\3\7\3\7\3\7\3\b\5\bD\n"+
+		"\b\3\b\3\b\3\t\6\tI\n\t\r\t\16\tJ\3\t\3\t\4\338\2\n\3\3\5\4\7\5\t\6\13"+
+		"\7\r\2\17\b\21\t\3\2\6\3\2\62;\4\2C\\c|\5\2\62;C\\c|\5\2\13\f\17\17\""+
+		"\"\2U\2\3\3\2\2\2\2\5\3\2\2\2\2\7\3\2\2\2\2\t\3\2\2\2\2\13\3\2\2\2\2\r"+
+		"\3\2\2\2\2\17\3\2\2\2\2\21\3\2\2\2\3\23\3\2\2\2\5\25\3\2\2\2\7!\3\2\2"+
+		"\2\t%\3\2\2\2\13.\3\2\2\2\r\64\3\2\2\2\17C\3\2\2\2\21H\3\2\2\2\23\24\7"+
+		"<\2\2\24\4\3\2\2\2\25\33\7$\2\2\26\27\7^\2\2\27\32\7$\2\2\30\32\13\2\2"+
+		"\2\31\26\3\2\2\2\31\30\3\2\2\2\32\35\3\2\2\2\33\34\3\2\2\2\33\31\3\2\2"+
+		"\2\34\36\3\2\2\2\35\33\3\2\2\2\36\37\7$\2\2\37\6\3\2\2\2 \"\t\2\2\2! "+
+		"\3\2\2\2\"#\3\2\2\2#!\3\2\2\2#$\3\2\2\2$\b\3\2\2\2%&\7\60\2\2&\'\7k\2"+
+		"\2\'(\7p\2\2()\7e\2\2)*\7n\2\2*+\7w\2\2+,\7f\2\2,-\7g\2\2-\n\3\2\2\2."+
+		"\60\t\3\2\2/\61\t\4\2\2\60/\3\2\2\2\61\62\3\2\2\2\62\60\3\2\2\2\62\63"+
+		"\3\2\2\2\63\f\3\2\2\2\648\7=\2\2\65\67\13\2\2\2\66\65\3\2\2\2\67:\3\2"+
+		"\2\289\3\2\2\28\66\3\2\2\29<\3\2\2\2:8\3\2\2\2;=\7\17\2\2<;\3\2\2\2<="+
+		"\3\2\2\2=>\3\2\2\2>?\7\f\2\2?@\3\2\2\2@A\b\7\2\2A\16\3\2\2\2BD\7\17\2"+
+		"\2CB\3\2\2\2CD\3\2\2\2DE\3\2\2\2EF\7\f\2\2F\20\3\2\2\2GI\t\5\2\2HG\3\2"+
+		"\2\2IJ\3\2\2\2JH\3\2\2\2JK\3\2\2\2KL\3\2\2\2LM\b\t\3\2M\22\3\2\2\2\13"+
+		"\2\31\33#\628<CJ\4\t\b\2\b\2\2";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
