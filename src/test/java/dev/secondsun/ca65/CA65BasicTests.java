@@ -21,38 +21,21 @@ public class CA65BasicTests {
     @Test
     @DisplayName("Read an integer from a file")
     public void readInt() throws IOException {
-        var source = CharStreams.fromStream(resource("65.s"));
-        AtomicInteger errors = new AtomicInteger(0);
 
-        ca65Lexer lexer = new ca65Lexer(source);
-        lexer.addErrorListener(new BaseErrorListener() {
-            @Override
-            public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
-                errors.incrementAndGet();
-            }
-        });
+        ca65Lexer lexer = lexer("65.s");
         var token = lexer.nextToken();
 
         assertEquals(ca65Lexer.INT, token.getType());
         assertEquals("65", token.getText());
-        assertEquals(0, errors.get());
     }
+
 
     @Test
     @DisplayName("Test Include directive")
     public void testIncludeDirective() throws IOException {
-        var source = CharStreams.fromStream(resource("include.s"));
         AtomicInteger errors = new AtomicInteger(0);
 
-        ca65Lexer lexer = new ca65Lexer(source);
-        lexer.addErrorListener(new BaseErrorListener() {
-            @Override
-            public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
-                errors.incrementAndGet();
-            }
-        });
-
-        assertEquals(0, errors.get());
+        ca65Lexer lexer = lexer("include.s", errors);
 
         var token = lexer.nextToken();
 
@@ -72,4 +55,23 @@ public class CA65BasicTests {
         return stream;
 
     }
+
+    public static ca65Lexer lexer(String filename, AtomicInteger errors) throws IOException {
+        var source = CharStreams.fromStream(resource(filename));
+
+        ca65Lexer lexer = new ca65Lexer(source);
+        lexer.addErrorListener(new BaseErrorListener() {
+            @Override
+            public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
+                errors.incrementAndGet();
+            }
+        });
+
+        assertEquals(0, errors.get());
+        return lexer;
+    }
+    public static ca65Lexer lexer(String sourceFile) throws IOException {
+        return lexer(sourceFile, new AtomicInteger(0));
+    }
+
 }

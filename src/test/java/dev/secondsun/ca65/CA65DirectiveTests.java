@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static dev.secondsun.ca65.CA65BasicTests.lexer;
 import static dev.secondsun.ca65.CA65BasicTests.resource;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,19 +21,8 @@ public class CA65DirectiveTests {
     @Test
     @DisplayName("Create a directive node as an object")
     public void makeDirectiveNode() throws IOException {
-        final var source = CharStreams.fromStream(resource("include.s"));
-        final AtomicInteger errors = new AtomicInteger(0);
         final AtomicReference<ca65Parser.DirectiveContext> node = new AtomicReference<>();
-
-        ca65Lexer lexer = new ca65Lexer(source);
-        lexer.addErrorListener(new BaseErrorListener() {
-            @Override
-            public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
-                errors.incrementAndGet();
-            }
-        });
-
-        assertEquals(0, errors.get());
+        ca65Lexer lexer = lexer("include.s");
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         ca65Parser parser = new ca65Parser(tokens);
         parser.setBuildParseTree(true);
@@ -58,19 +48,10 @@ public class CA65DirectiveTests {
     @Test
     @DisplayName("Test Enum")
     public void testEnum() throws IOException {
-        final var source = CharStreams.fromStream(resource("enum.s"));
-        final AtomicInteger errors = new AtomicInteger(0);
-        final AtomicReference<ca65Parser.DirectiveContext> node = new AtomicReference<>();
 
-        ca65Lexer lexer = new ca65Lexer(source);
-        lexer.addErrorListener(new BaseErrorListener() {
-            @Override
-            public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
-                errors.incrementAndGet();
-            }
-        });
 
-        assertEquals(0, errors.get());
+        ca65Lexer lexer = lexer("enum.s");
+
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         ca65Parser parser = new ca65Parser(tokens);
         parser.setBuildParseTree(true);
@@ -94,7 +75,12 @@ public class CA65DirectiveTests {
         assertEquals("-1", decList.get(0).assignment().number().getText());
         assertEquals("EAGAIN", decList.get(5).assignment().label().getText());
 
+    }
 
+    @Test
+    @DisplayName("Test enum with if in body")
+    public void testEnumWithIf() {
+        fail("not implemented");
     }
 
 }
