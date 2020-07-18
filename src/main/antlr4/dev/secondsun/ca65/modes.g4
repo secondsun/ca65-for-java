@@ -1,66 +1,4 @@
-grammar ca65;
-
-file: line* ;
-line: number|directive|(label TOK_COLON) | expr0;
-
-directive: multiline_directive | singleline_directive ;
-singleline_directive : SINGLE_LINE_DIRECTIVE arguments ;
-multiline_directive: enum_directive ;
-enum_directive : TOK_ENUM (TOK_IDENT)?  enum_body TOK_ENDENUM ;
-enum_body : symbol_declaration (symbol_declaration)*? ;
-symbol_declaration : label assignment? ;
-assignment : (TOK_EQ (number|label));
-arguments : argument ((TOK_COMMA)? argument)*;
-argument : expr0;
-expr0 : boolnotExpr | expr1 | TOK_IDENT|TOK_STRCON ;
-expr1 : expr2 /*''*/;
-expr2 : booleanExpr /*''*/;
-booleanExpr: simpleExpr /*''*/;
-simpleExpr: term /*''*/;
-term: factor /*''*/;
-factor: matchExpression | literalExpression | symbolExpression  | unnamedLabelExpression | TOK_PLUS factor | negateFactor | logicalNegateFactor | genCurrentPc  | loByteFactor | hiByteFactor
-     |  bankByteFactor |  TOK_LPAREN expr0 TOK_RPAREN |  bankExpression |  bankByteExpression | addrSizeExpression
-     | asizeExpr  | blankExpr |  constExpr| cpuExpr | definedExpr | definedMacroExpr | hibyteExpr | hiWordExpr |isMnemonicExpression
-     | iSizeExpr | loByteExpr | loWordExpr  |  maxExpr ;//| TOK_MIN | TOK_REFERENCED | TOK_SIZEOF | TOK_STRAT | TOK_STRLEN | TOK_TCOUNT | TOK_TIME | TOK_VERSION | TOK_XMATCH |;// '' ;
-
-maxExpr: TOK_MAX;
-matchExpression: TOK_MATCH TOK_MATCHBODY;
-
-TOK_MATCHBODY :  TOK_LPAREN (WS* (TOK_LCURLY (~[}])+ TOK_RCURLY) | ((~[,)])+)  WS*) TOK_COMMA (WS* (TOK_LCURLY (~[}])+ TOK_RCURLY) | ((~[,)])+)  WS*) TOK_RPAREN;
-
-loWordExpr: TOK_LOWORD function;
-loByteExpr: TOK_LOBYTE function;
-iSizeExpr:TOK_ISIZE;
-isMnemonicExpression: TOK_ISMNEMONIC TOK_LPAREN symbolExpression TOK_RPAREN;
-hiWordExpr: TOK_HIWORD function;
-hibyteExpr: TOK_HIBYTE function;
-definedMacroExpr: TOK_DEFINEDMACRO TOK_LPAREN symbolExpression TOK_RPAREN;
-definedExpr: TOK_DEFINED TOK_LPAREN symbolExpression TOK_RPAREN;
-cpuExpr: TOK_CPU;
-constExpr:TOK_CONST function;
-blankExpr: TOK_BLANK TOK_LPAREN blankArgs TOK_RPAREN;
-blankArgs: TOK_LCURLY TOK_IDENT TOK_RCURLY | TOK_IDENT;
-asizeExpr:TOK_ASIZE;
-addrSizeExpression: TOK_ADDRSIZE TOK_LPAREN symbolExpression TOK_RPAREN;
-bankExpression: TOK_BANK function;
-bankByteExpression: TOK_BANKBYTE function;
-function: TOK_LPAREN expr0 TOK_RPAREN;
-loByteFactor: TOK_LT factor;
-hiByteFactor: TOK_GT factor;
-genCurrentPc: (TOK_MUL | TOK_PC) ;
-bankByteFactor: TOK_XOR factor;
-logicalNegateFactor: TOK_NOT factor;
-
-negateFactor: TOK_MINUS factor;
-
-unnamedLabelExpression: TOK_ULABEL;
-
-symbolExpression: (TOK_IDENT TOK_NAMESPACE)*? TOK_IDENT;
-literalExpression : (INT | TOK_CHARCON) ;
-
-boolnotExpr : TOK_BOOLNOT expr0 ;
-label : TOK_IDENT ;
-number : INT | TOK_CHARCON;
+lexer grammar modes;
 
 COMMENT :  ';' .*? '\r'? ('\n'|EOF)   -> skip;
 COMMENT2: '/*' .*? '*/' -> skip ;
@@ -282,3 +220,7 @@ TOK_PC: '$';
 WS : ( ' ' | '\t' | '\r' | '\n' )+ -> skip ;
 
 
+mode TOKLIST;
+TOK_TOKLIST_NOESCAPE: (~[,){])+;
+TOK_TOKLIST_ESCAPE: (~[}])+;
+TOK_RCURLY: '}'     -> mode(DEFAULT_MODE) ;

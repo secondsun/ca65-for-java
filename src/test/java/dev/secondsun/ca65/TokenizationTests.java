@@ -30,5 +30,17 @@ public class TokenizationTests {
         fail("Not implemented");
     }
 
+    @Test
+    @DisplayName("S is a token in 65816 but not in default mode")
+    public void testParseLabelMode() {
+        fail("Not implemented: See ca65 scanner.c 1151");
+    }
+
+    @Test
+    @DisplayName("Test scoped symbols")
+    public void testScopedSymbols() {
+        fail("see symbol.c #64");
+    }
+
 }
 

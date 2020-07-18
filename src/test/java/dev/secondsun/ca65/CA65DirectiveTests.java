@@ -83,4 +83,10 @@ public class CA65DirectiveTests {
         fail("not implemented");
     }
 
+    @Test
+    @DisplayName("Test enum with macro in body")
+    public void testEnumWithMacro() {
+        fail("not implemented");
+    }
+
 }
