@@ -3,7 +3,7 @@ grammar ca65_2;
 import tokens;
 //options { tokenVocab=tokens; }
 
-file : statement*;
+file : (statement)* EOF;
 statement : ulabelStatement|   assignmentExpression   | labelDefinition | symbolExpression | pseudo;
 
 pseudo: a16Expr | a8Expr | addrExpression  | alignExpression | asciizExpression | assertExpression | autoImportExpression
