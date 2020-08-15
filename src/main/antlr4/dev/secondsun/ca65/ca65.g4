@@ -1,23 +1,155 @@
 grammar ca65;
 
-file: line* ;
-line: number|directive|(label TOK_COLON) | expr0;
+import tokens;
+//options { tokenVocab=tokens; }
 
-directive: multiline_directive | singleline_directive ;
-singleline_directive : SINGLE_LINE_DIRECTIVE arguments ;
-multiline_directive: enum_directive ;
-enum_directive : TOK_ENUM (TOK_IDENT)?  enum_body TOK_ENDENUM ;
-enum_body : symbol_declaration (symbol_declaration)*? ;
-symbol_declaration : label assignment? ;
+file : (statement)* EOF;
+statement : ulabelStatement|   assignmentExpression   | labelDefinition | symbolExpression | pseudo;
+
+pseudo: a16Expr | a8Expr | addrExpression  | alignExpression | asciizExpression | assertExpression | autoImportExpression
+        | bankBytesExpression | bssExpr | byteExpr| caseExpr | charMapExpr | codeExpr |conDesExpr | constructorExpr | dataExpr
+        | dbgExpr | dbytExpr | debugInfoExpr | defineExpr | delMacExpression | destructorExpression | dwordExpression |conditionalExpression
+        | endExpr | endProcExpr | endScopeExpr | enumExpr | errorExpr | exitMacroExp | exportExpr | exportZPExpr | farAddrExpr
+        | fatalExpr | featureExpr | forceImportExpr | globalExpr | globalZPExpr | hiBytesExpr | i16Expr | i8Expr | importExpr
+        | importZPExpr | incBinExpr | includeExpr | interruptorExpr | lineContPseudo | listPseudo | listBytesPseudo
+        | loBytesPseudo | localPseudo | localCharPseudo | macPackPseudo | macroPseudo | nullPseudo | orgPseudo | outPseudo
+        | p02Pseudo | p816Pseudo | p4510Pseudo | pageLengthPseudo | pc02Pseudo | popCPUPseudo | popSegPseudo | procPseudo
+        | psc02Pseudo | pushCPUPseudo | relocPseudo | pusSegPseudo| relocPseudo | repeatPseudo | resPseudo | roDataPseudo
+        | scopePseudo | segmentPseudo | setCpuPseudo | smartPseudo | structPseudo | tagPseudo | unionPseudo | warningPseudo | wordPseudo | zeroPagePseudo;
+
+
+
+labelDefinition: TOK_IDENT TOK_COLON ;
+assignmentExpression: symbolExpression (TOK_EQ | TOK_ASSIGN) expr0;
+setExpression  :symbolExpression TOK_SET constExpr;
+symbolExpression: (TOK_IDENT TOK_NAMESPACE)*? TOK_IDENT;
+identifierStatement: TOK_IDENT;//todo Check for instruction, macro, etc (main.c:685)
+ulabelStatement: TOK_COLON;
+
+
+/*
+pseudoinstruction definitions*/
+a16Expr: TOK_A16;
+a8Expr: TOK_A8;
+addrExpression: TOK_ADDR  expr0 ;
+addrSizeExpression: TOK_ADDRSIZE TOK_LPAREN symbolExpression TOK_RPAREN;
+alignExpression: TOK_ALIGN literalExpression (TOK_COMMA literalExpression)*?;
+asciizExpression: TOK_ASCIIZ TOK_STRCON;
+asizeExpr:TOK_ASIZE;
+assertExpression : TOK_ASSERT expr0 TOK_COMMA TOK_IDENT;
+autoImportExpression: TOK_AUTOIMPORT boolOption;
+bankBytesExpression: TOK_BANKBYTES expr0;
+bssExpr: TOK_BSS;
+byteExpr: TOK_BYTE (expr0 | TOK_STRCON) (TOK_COMMA (expr0 | TOK_STRCON))*?;
+caseExpr: TOK_CASE boolOption;
+charMapExpr: TOK_CHARMAP literalExpression (TOK_COMMA literalExpression)*?;
+codeExpr : TOK_CODE;
+conDesExpr: TOK_CONDES TOK_IDENT TOK_COMMA (TOK_IDENT | expr0) (TOK_COMMA literalExpression)?;
+constructorExpr: TOK_CONSTRUCTOR TOK_IDENT (TOK_COMMA literalExpression)?;
+dataExpr: TOK_DATA;
+dbgExpr: TOK_DBG TOK_IDENT;
+dbytExpr: TOK_DBYT expr0 (TOK_COMMA expr0)*?;
+debugInfoExpr: TOK_DEBUGINFO boolOption;
+defineExpr:TOK_DEFINE macroDefDefineStyle;
+delMacExpression: TOK_DELMAC TOK_IDENT;
+destructorExpression : TOK_DESTRUCTOR TOK_IDENT (TOK_COMMA literalExpression)?;
+dwordExpression: TOK_DWORD expr0 (TOK_COMMA expr0)*;
+endExpr: TOK_END;
+endProcExpr: TOK_ENDPROC;
+endScopeExpr: TOK_ENDSCOPE;
+enumExpr : TOK_ENUM (TOK_IDENT)?  enumBody TOK_ENDENUM '\n'? ;
+errorExpr: TOK_ERROR TOK_STRING;
+exitMacroExp: TOK_EXITMAC;
+exportExpr: TOK_EXPORT TOK_IDENT addresssSize? exportAssignment? (TOK_COMMA TOK_IDENT addresssSize? exportAssignment?)*;
+exportZPExpr: TOK_EXPORTZP TOK_IDENT addresssSize? exportAssignment? (TOK_COMMA TOK_IDENT addresssSize? exportAssignment?)*;
+farAddrExpr: TOK_FARADDR expr0 (TOK_COMMA expr0)*;
+fatalExpr: TOK_FATAL TOK_STRCON;
+featureExpr: TOK_FEATURE TOK_IDENT (TOK_COMMA TOK_IDENT)*;
+foptExpr: TOK_FILEOPT TOK_IDENT TOK_COMMA TOK_STRCON;
+forceImportExpr: TOK_FORCEIMPORT TOK_IDENT (TOK_COMMA TOK_IDENT)*;
+globalExpr: TOK_GLOBAL  TOK_IDENT (TOK_COMMA TOK_IDENT)*;
+globalZPExpr:TOK_GLOBALZP TOK_IDENT (TOK_COMMA TOK_IDENT)*;
+hiBytesExpr: TOK_HIBYTES expr0 (TOK_COMMA expr0)*;
+i16Expr: TOK_I16;
+i8Expr: TOK_I8;
+importExpr: TOK_IMPORT TOK_IDENT addresssSize? exportAssignment? (TOK_COMMA TOK_IDENT addresssSize? exportAssignment?)*;
+importZPExpr: TOK_IMPORTZP TOK_IDENT addresssSize? exportAssignment? (TOK_COMMA TOK_IDENT addresssSize? exportAssignment?)*;
+incBinExpr: TOK_INCBIN TOK_STRCON (TOK_COMMA number (TOK_COMMA number)?)?;
+includeExpr: TOK_INCLUDE TOK_STRCON;
+interruptorExpr: TOK_INTERRUPTOR TOK_IDENT (TOK_COMMA expr0)?;
+lineContPseudo: TOK_LINECONT boolOption;
+listPseudo: TOK_LIST boolOption;
+listBytesPseudo: TOK_LISTBYTES (number | TOK_IDENT);
+loBytesPseudo: TOK_LOBYTES expr0 (TOK_COMMA expr0)*;
+localPseudo: TOK_LOCAL TOK_IDENT;
+localCharPseudo:TOK_LOCALCHAR TOK_CHARCON;
+macPackPseudo: TOK_MACPACK TOK_IDENT;
+macroPseudo:TOK_MACRO TOK_IDENT macroDefArgs macroBody TOK_ENDMACRO;
+nullPseudo: TOK_NULL;
+orgPseudo: TOK_ORG expr0;
+outPseudo: TOK_OUT TOK_STRCON;
+p02Pseudo:TOK_P02;
+p4510Pseudo: TOK_P4510;
+p816Pseudo: TOK_P816;
+pageLengthPseudo:TOK_PAGELENGTH (number|TOK_IDENT);
+pc02Pseudo: TOK_PC02;
+popCPUPseudo: TOK_POPCPU;
+popSegPseudo: TOK_POPSEG;
+procPseudo: TOK_PROC TOK_IDENT? addresssSize? statement* TOK_ENDPROC;
+psc02Pseudo: TOK_PSC02;
+pushCPUPseudo: TOK_PUSHCPU;
+pusSegPseudo: TOK_PUSHSEG;
+relocPseudo: TOK_RELOC;
+repeatPseudo: TOK_REPEAT expr0 (TOK_COMMA TOK_IDENT)? statement* TOK_ENDREP;
+resPseudo: TOK_RES expr0 (TOK_COMMA expr0);
+roDataPseudo: TOK_RODATA;
+scopePseudo: TOK_SCOPE TOK_IDENT? addresssSize? statement* TOK_ENDSCOPE;
+segmentPseudo: TOK_SEGMENT TOK_STRCON addresssSize?;
+setCpuPseudo: TOK_SETCPU TOK_STRCON;
+smartPseudo: TOK_SMART boolOption;
+structPseudo: TOK_STRUCT TOK_IDENT?  structBody TOK_ENDSTRUCT;
+tagPseudo: TOK_TAG symbolExpression;
+unionPseudo: TOK_UNION  TOK_IDENT?  structBody TOK_ENDUNION;
+warningPseudo: TOK_WARNING TOK_STRCON;
+wordPseudo: TOK_WORD expr0 (TOK_COMMA expr0)*;
+zeroPagePseudo:TOK_ZEROPAGE;
+//conditionals
+conditionalExpression: ifBegin conditionalBody (else conditionalBody)* TOK_ENDIF;
+ifBegin : ( conIf booleanExpr )  | noConIf;
+conIf: TOK_IF | TOK_IFCONST | TOK_IFDEF | TOK_IFNBLANK | TOK_IFNCONST | TOK_IFNDEF | TOK_IFNREF  | TOK_IFREF | TOK_IFBLANK;
+noConIf: TOK_IFP02 | TOK_IFP4510 | TOK_IFP816 | TOK_IFPC02 | TOK_IFPSC02;
+else: TOK_ELSE | TOK_ELSEIF booleanExpr;
+conditionalBody: statement*;
+
+//Helpers
+boolOption : (TOK_PLUS | TOK_MINUS | TOK_IDENT);
+
+macroDefDefineStyle: TOK_IDENT TOK_LPAREN macroDefArgs TOK_RPAREN singleLineMarcoBody;
+macroDefArgs: TOK_IDENT (TOK_COMMA TOK_IDENT)*?;
+singleLineMarcoBody: statement + '\n';
+macroBody: statement*;
+
+enumBody : symbolDeclaration (symbolDeclaration)*;
+symbolDeclaration : label assignment? '\n'? ;//I don't know WHY it needs the newline...
+label : TOK_IDENT ;
 assignment : (TOK_EQ (number|label));
-arguments : argument ((TOK_COMMA)? argument)*;
-argument : expr0;
+number : INT | TOK_CHARCON;
+
+
+addresssSize:TOK_COLON TOK_IDENT;
+exportAssignment: (TOK_EQ | TOK_ASSIGN) expr0;
+
+structBody: (TOK_IDENT? storageAllocator)*;
+storageAllocator: (TOK_BYTE multiplier?| TOK_DBYT multiplier?| TOK_WORD multiplier?| TOK_ADDR multiplier?| TOK_FARADDR multiplier?| TOK_DWORD multiplier? | resPseudo multiplier?| orgPseudo multiplier? | tagPseudo multiplier?| structPseudo | TOK_UNION | conditionalExpression);
+multiplier: expr0;
+
+//--- OLD stuff review
 expr0 : boolnotExpr | expr1 | TOK_IDENT|TOK_STRCON ;
-expr1 : expr2 /*''*/;
-expr2 : booleanExpr /*''*/;
-booleanExpr: simpleExpr /*''*/;
-simpleExpr: term /*''*/;
-term: factor /*''*/;
+expr1 : expr2 (TOK_BOOLOR expr2)*?/*''*/;
+expr2 : booleanExpr ((TOK_BOOLAND | TOK_BOOLXOR) booleanExpr )*? /*''*/;
+booleanExpr: simpleExpr (comparisonToken simpleExpr)*?/*''*/;
+simpleExpr: term ((TOK_PLUS | TOK_MINUS | TOK_OR) term)*?/*''*/;
+term: factor ((TOK_MUL | TOK_DIV | TOK_MOD | TOK_AND | TOK_XOR | TOK_SHL | TOK_SHR) factor)*?/*''*/;
 factor: matchExpression | literalExpression | symbolExpression  | unnamedLabelExpression | TOK_PLUS factor | negateFactor | logicalNegateFactor | genCurrentPc  | loByteFactor | hiByteFactor
      |  bankByteFactor |  TOK_LPAREN expr0 TOK_RPAREN |  bankExpression |  bankByteExpression | addrSizeExpression
      | asizeExpr  | blankExpr |  constExpr| cpuExpr | definedExpr | definedMacroExpr | hibyteExpr | hiWordExpr |isMnemonicExpression
@@ -26,7 +158,9 @@ factor: matchExpression | literalExpression | symbolExpression  | unnamedLabelEx
 maxExpr: TOK_MAX;
 matchExpression: TOK_MATCH TOK_MATCHBODY;
 
-TOK_MATCHBODY :  TOK_LPAREN (WS* (TOK_LCURLY (~[}])+ TOK_RCURLY) | ((~[,)])+)  WS*) TOK_COMMA (WS* (TOK_LCURLY (~[}])+ TOK_RCURLY) | ((~[,)])+)  WS*) TOK_RPAREN;
+TOK_MATCHBODY :  '4vkdsmfd;plkmvflkmdvflkm';//TOK_LPAREN (WS* (TOK_LCURLY (~[}])+ TOK_RCURLY) | ((~[,)])+)  WS*) TOK_COMMA (WS* (TOK_LCURLY (~[}])+ TOK_RCURLY) | ((~[,)])+)  WS*) TOK_RPAREN;
+
+comparisonToken: TOK_EQ |TOK_NE | TOK_LT |TOK_GT |TOK_LE | TOK_GE;
 
 loWordExpr: TOK_LOWORD function;
 loByteExpr: TOK_LOBYTE function;
@@ -37,11 +171,10 @@ hibyteExpr: TOK_HIBYTE function;
 definedMacroExpr: TOK_DEFINEDMACRO TOK_LPAREN symbolExpression TOK_RPAREN;
 definedExpr: TOK_DEFINED TOK_LPAREN symbolExpression TOK_RPAREN;
 cpuExpr: TOK_CPU;
-constExpr:TOK_CONST function;
+constExpr:TOK_CONST function | TOK_CONST expr0;
 blankExpr: TOK_BLANK TOK_LPAREN blankArgs TOK_RPAREN;
 blankArgs: TOK_LCURLY TOK_IDENT TOK_RCURLY | TOK_IDENT;
-asizeExpr:TOK_ASIZE;
-addrSizeExpression: TOK_ADDRSIZE TOK_LPAREN symbolExpression TOK_RPAREN;
+
 bankExpression: TOK_BANK function;
 bankByteExpression: TOK_BANKBYTE function;
 function: TOK_LPAREN expr0 TOK_RPAREN;
@@ -52,233 +185,7 @@ bankByteFactor: TOK_XOR factor;
 logicalNegateFactor: TOK_NOT factor;
 
 negateFactor: TOK_MINUS factor;
-
 unnamedLabelExpression: TOK_ULABEL;
-
-symbolExpression: (TOK_IDENT TOK_NAMESPACE)*? TOK_IDENT;
 literalExpression : (INT | TOK_CHARCON) ;
-
 boolnotExpr : TOK_BOOLNOT expr0 ;
-label : TOK_IDENT ;
-number : INT | TOK_CHARCON;
-
-COMMENT :  ';' .*? '\r'? ('\n'|EOF)   -> skip;
-COMMENT2: '/*' .*? '*/' -> skip ;
-
-TOK_A16: '.A16';
-TOK_A8: '.A8';
-TOK_ADDR: '.ADDR';
-TOK_ADDRSIZE: '.ADDRSIZE';
-TOK_ALIGN: '.ALIGN';
-TOK_BOOLAND: '.AND' | '&&';
-TOK_ASCIIZ: '.ASCIIZ';
-TOK_ASIZE: '.ASIZE';
-TOK_ASSERT: '.ASSERT';
-TOK_AUTOIMPORT: '.AUTOIMPORT';
-TOK_BANK: '.BANK';
-TOK_BANKBYTE: '.BANKBYTE';
-TOK_BANKBYTES: '.BANKBYTES';
-TOK_AND: '.BITAND' | '&';
-TOK_NOT: '.BITNOT' | '~';
-TOK_OR: '.BITOR' | '|';
-TOK_XOR: '.BITXOR' | '^';
-TOK_BLANK: '.BLANK';
-TOK_BSS: '.BSS';
-TOK_BYTE: '.BYTE'| '.BYT' ;
-TOK_CASE: '.CASE';
-TOK_CHARMAP: '.CHARMAP';
-TOK_CODE: '.CODE';
-TOK_CONCAT: '.CONCAT';
-TOK_CONDES: '.CONDES';
-TOK_CONST: '.CONST';
-TOK_CONSTRUCTOR: '.CONSTRUCTOR';
-TOK_CPU: '.CPU';
-TOK_DATA: '.DATA';
-TOK_DBG: '.DBG';
-TOK_DBYT: '.DBYT';
-TOK_DEBUGINFO: '.DEBUGINFO';
-TOK_DEFINED: '.DEF';
-TOK_DEFINE: '.DEFINE' | '.DEFINED';
-
-TOK_DEFINEDMACRO: '.DEFINEDMACRO';
-TOK_DELMAC: '.DELMAC' | '.DELMACRO';
-
-TOK_DESTRUCTOR: '.DESTRUCTOR';
-TOK_DWORD: '.DWORD';
-TOK_ELSE: '.ELSE';
-TOK_ELSEIF: '.ELSEIF';
-TOK_END: '.END';
-TOK_ENDENUM: '.ENDENUM';
-TOK_ENDIF: '.ENDIF';
-TOK_ENDMACRO: '.ENDMAC' | '.ENDMACRO';
-
-TOK_ENDPROC: '.ENDPROC';
-TOK_ENDREP: '.ENDREP' | '.ENDREPEAT';
-
-TOK_ENDSCOPE: '.ENDSCOPE';
-TOK_ENDSTRUCT: '.ENDSTRUCT';
-TOK_ENDUNION: '.ENDUNION';
-TOK_ENUM: '.ENUM';
-TOK_ERROR: '.ERROR';
-TOK_EXITMACRO: '.EXITMAC' | '.EXITMACRO';
-
-TOK_EXPORT: '.EXPORT';
-TOK_EXPORTZP: '.EXPORTZP';
-TOK_FARADDR: '.FARADDR';
-TOK_FATAL: '.FATAL';
-TOK_FEATURE: '.FEATURE';
-TOK_FILEOPT: '.FILEOPT' | '.FOPT';
-TOK_FORCEIMPORT: '.FORCEIMPORT';
-TOK_FORCEWORD: '.FORCEWORD';
-TOK_GLOBAL: '.GLOBAL';
-TOK_GLOBALZP: '.GLOBALZP';
-TOK_HIBYTE: '.HIBYTE';
-TOK_HIBYTES: '.HIBYTES';
-TOK_HIWORD: '.HIWORD';
-TOK_I16: '.I16';
-TOK_I8: '.I8';
-TOK_MAKEIDENT: '.IDENT';
-TOK_IF: '.IF';
-TOK_IFBLANK: '.IFBLANK';
-TOK_IFCONST: '.IFCONST';
-TOK_IFDEF: '.IFDEF';
-TOK_IFNBLANK: '.IFNBLANK';
-TOK_IFNCONST: '.IFNCONST';
-TOK_IFNDEF: '.IFNDEF';
-TOK_IFNREF: '.IFNREF';
-TOK_IFP02: '.IFP02';
-TOK_IFP4510: '.IFP4510';
-TOK_IFP816: '.IFP816';
-TOK_IFPC02: '.IFPC02';
-TOK_IFPSC02: '.IFPSC02';
-TOK_IFREF: '.IFREF';
-TOK_IMPORT: '.IMPORT';
-TOK_IMPORTZP: '.IMPORTZP';
-TOK_INCBIN: '.INCBIN';
-TOK_INCLUDE: '.INCLUDE';
-TOK_INTERRUPTOR: '.INTERRUPTOR';
-TOK_ISIZE: '.ISIZE';
-TOK_ISMNEMONIC: '.ISMNEM' | '.ISMNEMONIC';
-
-TOK_LEFT: '.LEFT';
-TOK_LINECONT: '.LINECONT';
-TOK_LIST: '.LIST';
-TOK_LISTBYTES: '.LISTBYTES';
-TOK_LOBYTE: '.LOBYTE';
-TOK_LOBYTES: '.LOBYTES';
-TOK_LOCAL: '.LOCAL';
-TOK_LOCALCHAR: '.LOCALCHAR';
-TOK_LOWORD: '.LOWORD';
-TOK_MACRO: '.MAC' | '.MACRO';
-TOK_MACPACK: '.MACPACK';
-TOK_MATCH: '.MATCH';
-TOK_MAX: '.MAX';
-TOK_MID: '.MID';
-TOK_MIN: '.MIN';
-TOK_MOD: '.MOD';
-TOK_BOOLNOT: '.NOT' | '!';
-
-
-
-
-TOK_NULL: '.NULL';
-TOK_BOOLOR: '.OR' | '||' ;
-
-
-
-TOK_ORG: '.ORG';
-TOK_OUT: '.OUT';
-TOK_P02: '.P02';
-TOK_P4510: '.P4510';
-TOK_P816: '.P816';
-TOK_PAGELENGTH: '.PAGELEN'|'.PAGELENGTH';
-
-TOK_PARAMCOUNT: '.PARAMCOUNT';
-TOK_PC02: '.PC02';
-TOK_POPCPU: '.POPCPU';
-TOK_POPSEG: '.POPSEG';
-TOK_PROC: '.PROC';
-TOK_PSC02: '.PSC02';
-TOK_PUSHCPU: '.PUSHCPU';
-TOK_PUSHSEG: '.PUSHSEG';
-TOK_REFERENCED: '.REF'|'.REFERENCED';
-
-TOK_RELOC: '.RELOC';
-TOK_REPEAT: '.REPEAT';
-TOK_RES: '.RES';
-TOK_RIGHT: '.RIGHT';
-TOK_RODATA: '.RODATA';
-TOK_SCOPE: '.SCOPE';
-TOK_SEGMENT: '.SEGMENT';
-TOK_SET: '.SET';
-TOK_SETCPU: '.SETCPU';
-TOK_SHL: '.SHL'|'<<';
-TOK_SHR: '.SHR' | '>>';
-
-
-
-TOK_SIZEOF: '.SIZEOF';
-TOK_SMART: '.SMART';
-TOK_SPRINTF: '.SPRINTF';
-TOK_STRAT: '.STRAT';
-TOK_STRING: '.STRING';
-TOK_STRLEN: '.STRLEN';
-TOK_STRUCT: '.STRUCT';
-TOK_TAG: '.TAG';
-TOK_TCOUNT: '.TCOUNT';
-TOK_TIME: '.TIME';
-TOK_UNDEF: '.UNDEF' | '.UNDEFINE';
-TOK_UNION: '.UNION';
-TOK_VERSION: '.VERSION';
-TOK_WARNING: '.WARNING';
-TOK_WORD: '.WORD';
-TOK_XMATCH: '.XMATCH';
-TOK_BOOLXOR: '.XOR';
-TOK_ZEROPAGE: '.ZEROPAGE';
-
-TOK_STRCON:  '"' ('\\"'|.)*? '"' ;
-//SINGLE_LINE_DIRECTIVE: '.' ('a16'|'a8'|'addr'|'align'|'asciiz'|'assert'|'autoimport'|'bankbytes'|'bss'|'byt'|'byte'|'case'|'charmap'|'code'|'condes'|'constructor'|'data'|'dbyt'|'debuginfo'|'def'|'define'|'defined'|'delmac'|'delmacro'|'destructor'|'dword'|'else'|'elseif'|'end'|'endenum'|'endif'|'endmac'|'endmacro'|'endproc'|'endrep'|'endrepeat'|'endscope'|'endstruct'|'endunion'|'enum'|'error'|'exitmac'|'exitmacro'|'export'|'exportzp'|'faraddr'|'fatal'|'feature'|'fileopt'|'fopt'|'forceimport'|'global'|'globalzp'|'hibytes'|'i16'|'i8'|'if'|'ifblank'|'ifconst'|'ifdef'|'ifnblank'|'ifndef'|'ifnref'|'ifp02'|'ifp816'|'ifpc02'|'ifpsc02'|'ifref'|'import'|'importzp'|'incbin'|'include'|'interruptor'|'linecont'|'list'|'listbytes'|'lobytes'|'local'|'localchar'|'mac'|'macpack'|'macro'|'org'|'out'|'p02'|'p816'|'pagelen'|'pagelength'|'pc02'|'popcpu'|'popseg'|'proc'|'psc02'|'pushcpu'|'pushseg'|'reloc'|'repeat'|'res'|'rodata'|'scope'|'segment'|'set'|'setcpu'|'smart'|'struct'|'tag'|'undef'|'undefine'|'union'|'warning'|'word'|'zeropage') ;
-DOT: '.' ;
-INT : '-'? [0-9]+ [hH]? | HEX_INT | BINARY_INT;
-fragment HEX_INT: '$'[_a-fA-F0-9]([_a-fA-F0-9])*;
-fragment BINARY_INT: '%'[_01][_01]*;
-
-TOK_OVERRIDE_ABS : 'A:' ;
-TOK_A : 'A' WS;
-TOK_OVERRIDE_FAR : 'F:' ;
-TOK_S : 'S' WS | 'SP' WS ; //Needs special CPU mode
-TOK_X : 'X' WS ;
-TOK_Y : 'Y' WS ;
-TOK_Z : 'Z' WS ; //Needs special CPU mode
-TOK_OVERRIDE_ZP : 'Z:' ;
-//TODO Sweet 16 support scanner.c:1215
-
-TOK_NAMESPACE : '::';
-TOK_ULABEL : ':' ([-])+| ':' ([+])+;
-TOK_ASSIGN : ':=';
-TOK_COLON :':';
-TOK_COMMA :',';
-TOK_HASH :'#';
-TOK_LPAREN : '(';
-TOK_RPAREN : ')';
-TOK_LBRACK : '[';
-TOK_RBRACK : ']';
-TOK_LCURLY : '{';
-TOK_RCURLY : '}';
-TOK_LE : '<=';
-TOK_NE:'<>';
-TOK_LT :'<';
-TOK_EQ :'=';
-TOK_GE :'>=';
-TOK_GT :'>';
-TOK_PLUS : '+' ;
-TOK_MINUS : '-' ;
-TOK_DIV : '/' ;
-TOK_MUL : '*' ;
-TOK_CHARCON: '\'' . '\'';
-TOK_IDENT : [a-zA-Z_]([_a-zA-Z0-9])* ;
-TOK_PC: '$';
-
-WS : ( ' ' | '\t' | '\r' | '\n' )+ -> skip ;
-
 
